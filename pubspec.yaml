@@ -1,5 +1,5 @@
-name: flutter_good
-description: "A Flutter MVVM Habit Tracker app with local notifications and Provider state management."
+name: notica
+description: "Notica - A modern reminder and notification app with MVVM architecture, local notifications, and Provider state management."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -50,6 +50,9 @@ dependencies:
   
   # Timezone support for scheduled notifications
   timezone: ^0.10.1
+  
+  # Local storage for reminders
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:

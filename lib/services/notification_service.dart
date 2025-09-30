@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import '../models/habit.dart';
+import '../models/reminder.dart';
 
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialized in the `main` function
@@ -200,77 +200,126 @@ class NotificationService {
     }
   }
 
-  /// Schedule a daily notification for a habit
-  Future<void> scheduleHabitNotification(Habit habit) async {
+  /// Schedule a notification for a reminder
+  Future<void> scheduleReminderNotification(Reminder reminder) async {
     if (!_isInitialized) {
       await initialize();
     }
 
-    // Cancel any existing notification for this habit
-    await cancelNotification(habit.id.hashCode);
+    // Cancel any existing notification for this reminder
+    await cancelNotification(reminder.id.hashCode);
 
-    // Create notification details
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    // Don't schedule if reminder is not active or already completed
+    if (!reminder.isActive || reminder.isCompleted) {
+      return;
+    }
+
+    // Create notification details based on priority
+    final importance = reminder.priority == ReminderPriority.high
+        ? Importance.max
+        : reminder.priority == ReminderPriority.normal
+            ? Importance.high
+            : Importance.defaultImportance;
+
+    final priority = reminder.priority == ReminderPriority.high
+        ? Priority.max
+        : reminder.priority == ReminderPriority.normal
+            ? Priority.high
+            : Priority.defaultPriority;
+
+    final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'habit_reminders',
-      'Habit Reminders',
-      channelDescription: 'Notifications to remind you about your habits',
-      importance: Importance.high,
-      priority: Priority.high,
-      showWhen: false,
+      'reminder_notifications',
+      'Reminders',
+      channelDescription: 'Notica reminder notifications',
+      importance: importance,
+      priority: priority,
+      showWhen: true,
+      styleInformation: BigTextStyleInformation(
+        reminder.description.isNotEmpty
+            ? reminder.description
+            : 'Tap to view reminder details',
+        contentTitle: reminder.title,
+      ),
     );
 
-    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
-        DarwinNotificationDetails(
+    const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      interruptionLevel: InterruptionLevel.active,
     );
 
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics,
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
     );
-
-    // Calculate the scheduled time
-    final now = DateTime.now();
-    var scheduledDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      habit.reminderTime.hour,
-      habit.reminderTime.minute,
-    );
-
-    // If the time has already passed today, schedule for tomorrow
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
 
     // Convert to TZDateTime for proper scheduling
-    final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
+    final tzScheduledDate =
+        tz.TZDateTime.from(reminder.scheduledTime, tz.local);
 
-    // Schedule the notification properly
+    // Create notification content
+    String notificationBody = reminder.description.isNotEmpty
+        ? reminder.description
+        : 'Reminder: ${reminder.title}';
+
+    if (reminder.frequency != ReminderFrequency.once) {
+      notificationBody += ' • ${reminder.frequencyText}';
+    }
+
+    DateTimeComponents? dateTimeComponents;
+    switch (reminder.frequency) {
+      case ReminderFrequency.daily:
+        dateTimeComponents = DateTimeComponents.time;
+        break;
+      case ReminderFrequency.weekly:
+        dateTimeComponents = DateTimeComponents.dayOfWeekAndTime;
+        break;
+      default:
+        dateTimeComponents = null; // One-time notification
+        break;
+    }
+
+    // Schedule the notification
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      habit.id.hashCode, // Use habit ID hash as notification ID
-      'Habit Reminder',
-      'Time to work on "${habit.name}"!',
+      reminder.id.hashCode,
+      '${reminder.priorityIcon.toString().contains('high') ? '🚨 ' : '🔔 '}${reminder.title}',
+      notificationBody,
       tzScheduledDate,
       platformChannelSpecifics,
-      payload: habit.id,
+      payload: reminder.id,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents:
-          DateTimeComponents.time, // Repeat daily at the same time
+      matchDateTimeComponents: dateTimeComponents,
     );
 
     final timeString =
-        '${habit.reminderTime.hour.toString().padLeft(2, '0')}:${habit.reminderTime.minute.toString().padLeft(2, '0')}';
+        '${reminder.scheduledTime.hour.toString().padLeft(2, '0')}:${reminder.scheduledTime.minute.toString().padLeft(2, '0')}';
     debugPrint(
-      'Scheduled notification for habit: ${habit.name} at $timeString',
+      'Scheduled notification for reminder: ${reminder.title} at $timeString (${reminder.frequencyText})',
     );
+  }
 
-    // Note: For production apps, you would want to use proper scheduling
-    // This simplified version shows an immediate notification for demo purposes
+  /// Legacy method for backward compatibility
+  Future<void> scheduleHabitNotification(dynamic habit) async {
+    // Convert habit to reminder and schedule
+    debugPrint(
+        '⚠️ Using legacy scheduleHabitNotification - consider migrating to scheduleReminderNotification');
+
+    if (habit != null) {
+      final reminder = Reminder(
+        id: habit.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        title: habit.name ?? 'Reminder',
+        scheduledTime: DateTime.now().add(Duration(
+          hours: habit.reminderTime?.hour ?? 9,
+          minutes: habit.reminderTime?.minute ?? 0,
+        )),
+        frequency: ReminderFrequency.daily,
+        createdAt: DateTime.now(),
+      );
+
+      await scheduleReminderNotification(reminder);
+    }
   }
 
   /// Cancel a specific notification
@@ -278,7 +327,12 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-  /// Cancel all notifications for a habit
+  /// Cancel all notifications for a reminder
+  Future<void> cancelReminderNotifications(String reminderId) async {
+    await cancelNotification(reminderId.hashCode);
+  }
+
+  /// Legacy method for backward compatibility
   Future<void> cancelHabitNotifications(String habitId) async {
     await cancelNotification(habitId.hashCode);
   }
