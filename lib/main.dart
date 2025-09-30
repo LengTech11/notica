@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/notification_service.dart';
-import 'viewmodels/habit_viewmodel.dart';
-import 'views/habit_list_view.dart';
+import 'viewmodels/reminder_viewmodel.dart';
+import 'views/reminder_list_view.dart';
 
 void main() async {
   // Needed if you intend to initialize in the main function
@@ -12,22 +12,22 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
 
-  runApp(const HabitTrackerApp());
+  runApp(const NoticaApp());
 }
 
-class HabitTrackerApp extends StatelessWidget {
-  const HabitTrackerApp({super.key});
+class NoticaApp extends StatelessWidget {
+  const NoticaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => HabitViewModel(),
+      create: (context) => ReminderViewModel(),
       child: MaterialApp(
-        title: 'Habit Tracker',
+        title: 'Notica',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.green,
+            seedColor: Colors.deepPurple,
             brightness: Brightness.light,
           ),
           useMaterial3: true,
@@ -35,38 +35,38 @@ class HabitTrackerApp extends StatelessWidget {
         ),
         darkTheme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.green,
+            seedColor: Colors.deepPurple,
             brightness: Brightness.dark,
           ),
           useMaterial3: true,
           appBarTheme: const AppBarTheme(centerTitle: true),
         ),
         themeMode: ThemeMode.system,
-        home: const HabitTrackerHome(),
+        home: const NoticaHome(),
       ),
     );
   }
 }
 
-class HabitTrackerHome extends StatefulWidget {
-  const HabitTrackerHome({super.key});
+class NoticaHome extends StatefulWidget {
+  const NoticaHome({super.key});
 
   @override
-  State<HabitTrackerHome> createState() => _HabitTrackerHomeState();
+  State<NoticaHome> createState() => _NoticaHomeState();
 }
 
-class _HabitTrackerHomeState extends State<HabitTrackerHome> {
+class _NoticaHomeState extends State<NoticaHome> {
   @override
   void initState() {
     super.initState();
-    // Initialize the habit view model when the app starts
+    // Initialize the reminder view model when the app starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<HabitViewModel>(context, listen: false).initialize();
+      Provider.of<ReminderViewModel>(context, listen: false).initialize();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const HabitListView();
+    return const ReminderListView();
   }
 }

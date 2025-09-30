@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_good/main.dart';
+import 'package:notica/main.dart';
 
 void main() {
   testWidgets('Habit Tracker app loads', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const HabitTrackerApp());
+    await tester.pumpWidget(const NoticaApp());
 
     // Verify that our app title is shown.
     expect(find.text('Habit Tracker'), findsOneWidget);
