@@ -25,6 +25,7 @@ A modern Flutter reminder and notification application built using the MVVM (Mod
 
 ### 🎨 User Experience
 - 🌙 **Dark mode support** (follows system preference)
+- 🌍 **Multi-language support** - English and Khmer (ខ្មែរ)
 - 📱 **Material Design 3** with modern UI components
 - 🔍 **Smart filtering** - View upcoming, overdue, and today's reminders
 - ⚡ **Real-time updates** with reactive state management
@@ -91,6 +92,7 @@ This project uses the following Flutter packages:
 - **`intl`** (^0.20.2) - Internationalization and date/time formatting
 - **`timezone`** (^0.10.1) - Timezone support for scheduled notifications
 - **`shared_preferences`** (^2.3.2) - Local data persistence
+- **`easy_localization`** (^3.0.7) - Multi-language support
 - **`cupertino_icons`** (^1.0.8) - iOS-style icons
 
 ## Getting Started
@@ -176,6 +178,18 @@ This project uses the following Flutter packages:
 - The app schedules notifications based on your reminder times
 - Notifications work even when the app is closed
 - Test notifications using the bell icon in the app bar
+
+### Language Settings
+
+Notica supports multiple languages:
+
+1. **Switch languages**: Tap the menu icon (⋮) → Select "Language" / "ភាសា"
+2. **Available languages**:
+   - 🇬🇧 English
+   - 🇰🇭 ខ្មែរ (Khmer)
+3. Your language preference is saved automatically
+
+For more details on localization, see [LOCALIZATION.md](LOCALIZATION.md)
 - Manage notification permissions in your device settings
 
 ## Key Features Explained
