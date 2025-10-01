@@ -25,7 +25,6 @@ A modern Flutter reminder and notification application built using the MVVM (Mod
 
 ### 🎨 User Experience
 - 🌙 **Dark mode support** (follows system preference)
-- 🌍 **Multi-language support** - English and Khmer (ខ្មែរ)
 - 📱 **Material Design 3** with modern UI components
 - 🔍 **Smart filtering** - View upcoming, overdue, and today's reminders
 - ⚡ **Real-time updates** with reactive state management
@@ -50,12 +49,9 @@ lib/
 │   ├── habit_list_view.dart    # Habits list screen
 │   └── add_habit_view.dart     # Add/edit habit screen
 ├── services/
-│   └── notification_service.dart # Local notification handling
-├── providers/
-│   └── locale_provider.dart    # Language preference management
-├── l10n/
-│   ├── app_en.arb             # English translations
-│   └── app_km.arb             # Khmer translations
+│   ├── notification_service.dart       # Local notification handling
+│   ├── reminder_storage_service.dart   # Reminder persistence
+│   └── habit_storage_service.dart      # Habit persistence
 └── main.dart                   # App entry point with Provider setup
 ```
 
@@ -68,27 +64,22 @@ Following Flutter's recommended patterns:
   - Include computed properties (e.g., `isCompletedToday`, `currentStreak`)
   - Support JSON serialization for persistence
 
-- **Model**: `Habit` class with properties and business rules
-- **ViewModel**: `HabitViewModel` manages state using Provider/ChangeNotifier
-- **View**: UI components (`HabitListView`, `AddHabitView`) that observe ViewModel
-- **Service**: `NotificationService` handles local notifications
-- **Localization**: ARB files for multi-language support
+- **ViewModel**: State management using Provider/ChangeNotifier
+  - `ReminderViewModel` and `HabitViewModel` manage application state
+  - Handle business logic and data operations
+  - Communicate with services for persistence and notifications
+  - Notify views of state changes through `notifyListeners()`
 
-## Multi-Language Support
+- **View**: UI components built with Flutter widgets
+  - Observe ViewModel state using `Consumer` or `Provider.of()`
+  - Respond to user interactions
+  - Display data provided by ViewModels
+  - Remain stateless or minimal state when possible
 
-The app supports the following languages:
-- 🇬🇧 English (en)
-- 🇰🇭 Khmer / ខ្មែរ (km)
-
-### Changing Language
-
-1. Open the app
-2. Tap the menu button (⋮) in the top-right corner
-3. Select "Language" / "ភាសា"
-4. Choose your preferred language
-5. The app will immediately switch to the selected language
-
-The selected language preference is saved and will persist across app restarts.
+- **Services**: Platform and infrastructure concerns
+  - `NotificationService` handles local notifications and permissions
+  - `ReminderStorageService` and `HabitStorageService` manage data persistence
+  - Keep platform-specific logic separate from business logic
 
 ## Dependencies
 
@@ -96,7 +87,6 @@ This project uses the following Flutter packages:
 
 - **`provider`** (^6.1.2) - State management and dependency injection
 - **`flutter_local_notifications`** (^19.4.2) - Local notifications for Android and iOS
-- **`flutter_localizations`** - Multi-language support
 - **`permission_handler`** (^12.0.1) - Runtime permission handling
 - **`intl`** (^0.20.2) - Internationalization and date/time formatting
 - **`timezone`** (^0.10.1) - Timezone support for scheduled notifications
