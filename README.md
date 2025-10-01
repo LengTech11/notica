@@ -1,34 +1,53 @@
-# Habit Tracker - Flutter MVVM App
+# Notica - Flutter Reminder & Notification App
 
-A Flutter habit tracking application built using the MVVM (Model-View-ViewModel) architecture pattern with Provider for state management and local notifications for reminders.
+A modern Flutter reminder and notification application built using the MVVM (Model-View-ViewModel) architecture pattern with Provider for state management, local notifications, and persistent storage.
 
 ## Features
 
-- ✅ **Add new habits** with custom names and reminder times
-- 📋 **View all habits** in an organized list
-- ✔️ **Mark habits as completed** for the current day
-- 🔔 **Local notifications** to remind you about your habits
-- 📊 **Progress tracking** with daily completion percentage
+### 🔔 Reminder Management
+- ✅ **Create reminders** with title, description, and scheduled time
+- 🔁 **Flexible scheduling** - Once, Daily, Weekly, Weekdays, or Weekends
+- 🎯 **Priority levels** - Low, Normal, or High priority reminders
+- 🏷️ **Tag system** for organizing reminders
+- 📋 **View all reminders** in an organized list with filtering options
+- ✔️ **Mark reminders as completed** with completion tracking
+- 🔔 **Local notifications** that trigger at scheduled times
+- ✏️ **Edit existing reminders** with full details modification
+- 🗑️ **Delete reminders** with confirmation dialog
+- 💾 **Persistent storage** using SharedPreferences
+
+### 📊 Habit Tracking
+- ✅ **Create habits** with custom names and reminder times
+- 📈 **Track habit completion** with daily progress
 - 🔥 **Streak counter** to track consecutive days
-- ✏️ **Edit existing habits** (name and reminder time)
-- 🗑️ **Delete habits** with confirmation dialog
+- ✔️ **Mark habits as completed** for the current day
+- 🔔 **Daily notifications** to remind you about your habits
+
+### 🎨 User Experience
 - 🌙 **Dark mode support** (follows system preference)
 - 🌍 **Multi-language support** - English and Khmer (ខ្មែរ)
+- 📱 **Material Design 3** with modern UI components
+- 🔍 **Smart filtering** - View upcoming, overdue, and today's reminders
+- ⚡ **Real-time updates** with reactive state management
 
 ## Architecture
 
-This app follows the **MVVM (Model-View-ViewModel)** pattern:
+This app follows the **MVVM (Model-View-ViewModel)** pattern as recommended by Flutter's architecture guidelines:
 
 ### 📁 Project Structure
 
 ```
 lib/
 ├── models/
+│   ├── reminder.dart           # Reminder data model with enums
 │   └── habit.dart              # Habit data model
 ├── viewmodels/
-│   └── habit_viewmodel.dart    # Business logic and state management
+│   ├── reminder_viewmodel.dart # Business logic for reminders
+│   └── habit_viewmodel.dart    # Business logic for habits
 ├── views/
-│   ├── habit_list_view.dart    # Main habits list screen
+│   ├── reminder_list_view.dart # Main reminders list screen
+│   ├── add_reminder_view.dart  # Add/edit reminder screen
+│   ├── habit_list_view.dart    # Habits list screen
 │   └── add_habit_view.dart     # Add/edit habit screen
 ├── services/
 │   └── notification_service.dart # Local notification handling
@@ -40,7 +59,14 @@ lib/
 └── main.dart                   # App entry point with Provider setup
 ```
 
-### 🏗️ Architecture Components
+### 🏗️ MVVM Architecture Components
+
+Following Flutter's recommended patterns:
+
+- **Model**: Data classes (`Reminder`, `Habit`) with business rules and serialization
+  - Encapsulate data and domain logic
+  - Include computed properties (e.g., `isCompletedToday`, `currentStreak`)
+  - Support JSON serialization for persistence
 
 - **Model**: `Habit` class with properties and business rules
 - **ViewModel**: `HabitViewModel` manages state using Provider/ChangeNotifier
@@ -66,26 +92,31 @@ The selected language preference is saved and will persist across app restarts.
 
 ## Dependencies
 
+This project uses the following Flutter packages:
+
 - **`provider`** (^6.1.2) - State management and dependency injection
-- **`flutter_local_notifications`** (^17.2.2) - Local notifications
+- **`flutter_local_notifications`** (^19.4.2) - Local notifications for Android and iOS
 - **`flutter_localizations`** - Multi-language support
-- **`permission_handler`** (^11.3.1) - Notification permissions
-- **`intl`** (^0.19.0) - Date/time formatting utilities
+- **`permission_handler`** (^12.0.1) - Runtime permission handling
+- **`intl`** (^0.20.2) - Internationalization and date/time formatting
+- **`timezone`** (^0.10.1) - Timezone support for scheduled notifications
+- **`shared_preferences`** (^2.3.2) - Local data persistence
+- **`cupertino_icons`** (^1.0.8) - iOS-style icons
 
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK (3.9.0 or higher)
-- Dart SDK
+- **Flutter SDK** (3.24.0 or higher)
+- **Dart SDK** (3.5.0 or higher)
 - iOS Simulator / Android Emulator or physical device
 
 ### Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd flutter_good
+   git clone https://github.com/LengTech11/notica.git
+   cd notica
    ```
 
 2. **Install dependencies**:
@@ -101,67 +132,110 @@ The selected language preference is saved and will persist across app restarts.
 ### Platform-Specific Setup
 
 #### Android
-- No additional setup required for basic functionality
-- For notifications on Android 13+, the app automatically requests permissions
+- Minimum SDK version: 21 (Android 5.0)
+- Target SDK version: 34
+- For notifications on Android 13+, runtime permissions are requested automatically
+- Notification channels are configured in the app
 
 #### iOS
-- Notification permissions are requested automatically
-- The app supports both light and dark modes
+- Minimum deployment target: iOS 12.0
+- Notification permissions are requested at runtime
+- Background execution modes configured for notifications
+- Supports both light and dark modes
 
 ## Usage
 
-### Adding a New Habit
+### Working with Reminders
 
-1. Tap the **"+"** floating action button
-2. Enter a habit name (e.g., "Drink Water", "Exercise")
-3. Set a reminder time using the time picker
-4. Tap **"Create Habit"**
+#### Creating a Reminder
+1. Tap the **"+"** floating action button on the reminders screen
+2. Enter a **title** for your reminder (required)
+3. Optionally add a **description**
+4. Select a **scheduled date and time**
+5. Choose a **frequency** (Once, Daily, Weekly, Weekdays, or Weekends)
+6. Set a **priority level** (Low, Normal, or High)
+7. Add **tags** to organize your reminders (optional)
+8. Tap **"Create Reminder"**
 
-### Managing Habits
+#### Managing Reminders
+- **View reminders**: See all reminders in the main list
+- **Filter view**: Switch between All, Today, Upcoming, and Overdue
+- **Complete a reminder**: Tap the checkbox to mark as completed
+- **Edit a reminder**: Tap on a reminder to view details and edit
+- **Delete a reminder**: Swipe left or use the delete option in the menu
+- **Notifications**: Reminders trigger notifications at scheduled times
 
+### Working with Habits
+
+#### Creating a Habit
+1. Navigate to the Habits section
+2. Tap the **"+"** floating action button
+3. Enter a **habit name** (e.g., "Drink Water", "Exercise")
+4. Set a **reminder time** using the time picker
+5. Tap **"Create Habit"**
+
+#### Managing Habits
 - **Complete a habit**: Tap the checkmark icon next to the habit
-- **Undo completion**: Tap the undo icon if the habit is already completed
+- **Undo completion**: Tap the undo icon if already completed
+- **Track streaks**: View your consecutive completion days
 - **Edit a habit**: Tap the menu button (⋮) and select "Edit"
 - **Delete a habit**: Tap the menu button (⋮) and select "Delete"
 
 ### Notifications
 
-- The app schedules daily reminders at your chosen time
-- Test notifications by tapping the bell icon in the app bar
+- The app schedules notifications based on your reminder times
 - Notifications work even when the app is closed
+- Test notifications using the bell icon in the app bar
+- Manage notification permissions in your device settings
 
 ## Key Features Explained
 
-### Habit Model
-- Tracks habit name, reminder time, creation date, and completion history
-- Calculates current streak and today's completion status
-- Supports JSON serialization for future local storage implementation
+### Reminder System
+- **Flexible Scheduling**: Create one-time or recurring reminders
+- **Smart Filtering**: Automatically categorizes reminders by status
+- **Priority Management**: Visual indicators for high-priority items
+- **Tag Organization**: Group related reminders with custom tags
+- **Persistence**: All data saved locally using SharedPreferences
 
-### State Management
-- Uses Provider pattern with ChangeNotifier
-- Centralized state management in HabitViewModel
-- Reactive UI updates when state changes
+### State Management with Provider
+- Centralized state in `ReminderViewModel` and `HabitViewModel`
+- Uses `ChangeNotifier` for reactive updates
+- Efficient rebuilds with `Consumer` widgets
+- Follows Flutter's recommended state management patterns
 
 ### Notification System
-- Singleton NotificationService for managing all notifications
+- Singleton `NotificationService` manages all notifications
 - Platform-specific configuration for Android and iOS
-- Automatic permission handling
+- Automatic permission handling with user-friendly prompts
+- Scheduled notifications using timezone-aware scheduling
+- Notification channels for better user control (Android)
 
-### UI/UX
-- Material Design 3 with dynamic theming
-- Progress indicator showing daily completion percentage
-- Streak counter with fire emoji for motivation
-- Responsive design that works on various screen sizes
+### Data Persistence
+- `SharedPreferences` for lightweight local storage
+- JSON serialization for models
+- Automatic save on data changes
+- Load data on app initialization
+
+### UI/UX Design
+- **Material Design 3** with dynamic color schemes
+- **System theme support** (light/dark mode)
+- **Responsive layouts** that adapt to different screen sizes
+- **Intuitive navigation** with clear visual hierarchy
+- **Accessibility features** following Flutter best practices
 
 ## Future Enhancements
 
-- 💾 **Persistent storage** using SQLite or Hive
-- 📈 **Advanced analytics** and habit insights
-- 🎯 **Custom habit categories** and icons
-- ⏰ **Multiple reminders** per habit
-- 📱 **Widget support** for quick access
-- 🔄 **Data backup** and synchronization
-- 🏆 **Achievement system** and rewards
+- 💾 **Cloud sync** using Firebase or other backend services
+- 📈 **Advanced analytics** with charts and insights
+- 🎯 **Custom categories** for better organization
+- 🔄 **Recurring patterns** (bi-weekly, monthly, custom intervals)
+- 📱 **Home screen widgets** for quick access
+- 🌍 **Multi-language support** with internationalization
+- 🔊 **Custom notification sounds** and vibration patterns
+- 📧 **Email/SMS reminders** for critical notifications
+- 👥 **Shared reminders** for collaborative task management
+- 🎨 **Customizable themes** and color schemes
+- 📤 **Import/Export** functionality for backup and migration
 
 ## Testing
 
@@ -176,15 +250,27 @@ flutter test --coverage
 
 # Analyze code quality
 flutter analyze
+
+# Check for outdated dependencies
+flutter pub outdated
 ```
 
 ## Contributing
 
+We welcome contributions! Please follow these steps:
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Follow the existing code style and architecture patterns
+4. Write tests for new functionality
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request with a clear description
+
+### Code Style
+- Follow [Effective Dart](https://dart.dev/guides/language/effective-dart) guidelines
+- Use `flutter analyze` to check for issues
+- Format code with `dart format .`
 
 ## License
 
@@ -192,19 +278,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Flutter team for the excellent framework
-- Provider package maintainers for state management
-- flutter_local_notifications plugin for notification support
+- [Flutter](https://flutter.dev/) - The excellent framework for building beautiful apps
+- [Provider](https://pub.dev/packages/provider) - Recommended state management solution
+- [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) - Comprehensive notification support
+- The Flutter community for continuous support and inspiration
 
-## Getting Started
+## Resources
 
-This project is a starting point for a Flutter application.
+For those new to Flutter or MVVM architecture:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- [Flutter Documentation](https://docs.flutter.dev/) - Official Flutter docs
+- [Provider Documentation](https://pub.dev/documentation/provider/latest/) - State management guide
+- [Flutter Architecture Samples](https://fluttersamples.com/) - Various architecture patterns
+- [Effective Dart](https://dart.dev/guides/language/effective-dart) - Dart best practices
+- [Material Design 3](https://m3.material.io/) - Design system guidelines

@@ -6,7 +6,9 @@ import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 import '../services/notification_service.dart';
 import '../providers/locale_provider.dart';
+import '../providers/theme_provider.dart';
 import 'add_reminder_view.dart';
+import 'onboarding_view.dart';
 
 class ReminderListView extends StatelessWidget {
   const ReminderListView({super.key});
@@ -58,6 +60,14 @@ class ReminderListView extends StatelessWidget {
                 ),
               ),
               PopupMenuItem(
+                value: 'theme',
+                child: ListTile(
+                  leading: const Icon(Icons.brightness_6),
+                  title: const Text('Theme'),
+                  subtitle: Text(_getThemeModeText(context)),
+                ),
+              ),
+              PopupMenuItem(
                 value: 'settings',
                 child: ListTile(
                   leading: const Icon(Icons.settings),
@@ -73,8 +83,6 @@ class ReminderListView extends StatelessWidget {
               ),
             ],
           ),
-        ],
-      ),
       body: Consumer<ReminderViewModel>(
         builder: (context, reminderViewModel, child) {
           if (reminderViewModel.isLoading) {
@@ -816,6 +824,9 @@ class ReminderListView extends StatelessWidget {
       case 'language':
         _showLanguageDialog(context);
         break;
+      case 'theme':
+        _showThemeDialog(context);
+        break;
       case 'settings':
         _showSettingsDialog(context);
         break;
@@ -825,10 +836,22 @@ class ReminderListView extends StatelessWidget {
     }
   }
 
+  String _getThemeModeText(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    switch (themeProvider.themeMode) {
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+      case ThemeMode.system:
+        return 'System';
+    }
+  }
+
   void _showLanguageDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -866,14 +889,99 @@ class ReminderListView extends StatelessWidget {
     );
   }
 
+  void _showThemeDialog(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: const Text('Light'),
+              subtitle: const Text('Always use light theme'),
+              value: ThemeMode.light,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Dark'),
+              subtitle: const Text('Always use dark theme'),
+              value: ThemeMode.dark,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('System'),
+              subtitle: const Text('Follow system theme'),
+              value: ThemeMode.system,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSettingsDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.settings),
-        content: Text(l10n.settingsComingSoon),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.school),
+              title: const Text('View Onboarding Tutorial'),
+              subtitle: const Text('See the app introduction again'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OnboardingView(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'More settings will be available in future updates.',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -883,6 +991,7 @@ class ReminderListView extends StatelessWidget {
       ),
     );
   }
+
 
   void _showAboutDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
