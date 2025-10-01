@@ -5,6 +5,7 @@ import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 import '../services/notification_service.dart';
 import 'add_reminder_view.dart';
+import 'onboarding_view.dart';
 
 class ReminderListView extends StatelessWidget {
   const ReminderListView({super.key});
@@ -792,11 +793,38 @@ class ReminderListView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Settings'),
-        content: const Text('Settings will be available in future updates.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.school),
+              title: const Text('View Onboarding Tutorial'),
+              subtitle: const Text('See the app introduction again'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OnboardingView(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'More settings will be available in future updates.',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const Text('Close'),
           ),
         ],
       ),

@@ -57,7 +57,13 @@ class _OnboardingViewState extends State<OnboardingView> {
     await onboardingService.completeOnboarding();
     
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      // Check if we can pop (meaning we were pushed from settings)
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        // Otherwise, navigate to home (first launch scenario)
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     }
   }
 
