@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/onboarding_page.dart';
 import '../services/onboarding_service.dart';
 
@@ -13,29 +14,25 @@ class _OnboardingViewState extends State<OnboardingView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPage> _pages = const [
+  final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: 'Welcome to Notica',
-      description:
-          'Never miss important tasks again! Notica helps you stay organized with smart reminders and notifications.',
+      title: 'onboarding.page1_title'.tr(),
+      description: 'onboarding.page1_description'.tr(),
       icon: Icons.notifications_active,
     ),
     OnboardingPage(
-      title: 'Create Reminders',
-      description:
-          'Set up reminders for any task with custom titles, descriptions, dates, and times. Perfect for appointments, deadlines, and daily tasks.',
+      title: 'onboarding.page2_title'.tr(),
+      description: 'onboarding.page2_description'.tr(),
       icon: Icons.event_note,
     ),
     OnboardingPage(
-      title: 'Set Priorities',
-      description:
-          'Mark important reminders as high priority so you never miss critical tasks. Use tags to organize your reminders.',
+      title: 'onboarding.page3_title'.tr(),
+      description: 'onboarding.page3_description'.tr(),
       icon: Icons.star,
     ),
     OnboardingPage(
-      title: 'Stay on Track',
-      description:
-          'Get notified at the right time and complete your tasks efficiently. Track your progress and build productive habits!',
+      title: 'onboarding.page4_title'.tr(),
+      description: 'onboarding.page4_description'.tr(),
       icon: Icons.check_circle,
     ),
   ];
@@ -101,7 +98,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                     TextButton(
                       onPressed: _skipOnboarding,
                       child: Text(
-                        'Skip',
+                        'onboarding.skip'.tr(),
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontSize: 16,
@@ -155,8 +152,8 @@ class _OnboardingViewState extends State<OnboardingView> {
                   ),
                   child: Text(
                     _currentPage < _pages.length - 1
-                        ? 'Next'
-                        : 'Get Started',
+                        ? 'onboarding.next'.tr()
+                        : 'onboarding.get_started'.tr(),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
