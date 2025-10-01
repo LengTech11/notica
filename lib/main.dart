@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'services/notification_service.dart';
 import 'services/onboarding_service.dart';
 import 'viewmodels/reminder_viewmodel.dart';
+import 'providers/theme_provider.dart';
 import 'views/reminder_list_view.dart';
 import 'views/onboarding_view.dart';
 
@@ -26,33 +27,35 @@ class NoticaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ReminderViewModel(),
-      child: MaterialApp(
-        title: 'Notica',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-          appBarTheme: const AppBarTheme(centerTitle: true),
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          appBarTheme: const AppBarTheme(centerTitle: true),
-        ),
-        themeMode: ThemeMode.system,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const AppInitializer(),
-          '/home': (context) => const NoticaHome(),
-          '/onboarding': (context) => const OnboardingView(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ReminderViewModel()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Notica',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
+                brightness: Brightness.light,
+              ),
+              useMaterial3: true,
+              appBarTheme: const AppBarTheme(centerTitle: true),
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+              appBarTheme: const AppBarTheme(centerTitle: true),
+            ),
+            themeMode: themeProvider.themeMode,
+            home: const NoticaHome(),
+          );
         },
       ),
     );
@@ -108,9 +111,10 @@ class _NoticaHomeState extends State<NoticaHome> {
   @override
   void initState() {
     super.initState();
-    // Initialize the reminder view model when the app starts
+    // Initialize the reminder view model and theme provider when the app starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ReminderViewModel>(context, listen: false).initialize();
+      Provider.of<ThemeProvider>(context, listen: false).initialize();
     });
   }
 

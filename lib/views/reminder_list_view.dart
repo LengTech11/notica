@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 import '../services/notification_service.dart';
+import '../providers/theme_provider.dart';
 import 'add_reminder_view.dart';
 import 'onboarding_view.dart';
 
@@ -47,6 +48,14 @@ class ReminderListView extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'theme',
+                child: ListTile(
+                  leading: const Icon(Icons.brightness_6),
+                  title: const Text('Theme'),
+                  subtitle: Text(_getThemeModeText(context)),
+                ),
+              ),
               const PopupMenuItem(
                 value: 'settings',
                 child: ListTile(
@@ -779,6 +788,9 @@ class ReminderListView extends StatelessWidget {
 
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
+      case 'theme':
+        _showThemeDialog(context);
+        break;
       case 'settings':
         _showSettingsDialog(context);
         break;
@@ -786,6 +798,76 @@ class ReminderListView extends StatelessWidget {
         _showAboutDialog(context);
         break;
     }
+  }
+
+  String _getThemeModeText(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    switch (themeProvider.themeMode) {
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+      case ThemeMode.system:
+        return 'System';
+    }
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: const Text('Light'),
+              subtitle: const Text('Always use light theme'),
+              value: ThemeMode.light,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Dark'),
+              subtitle: const Text('Always use dark theme'),
+              value: ThemeMode.dark,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('System'),
+              subtitle: const Text('Follow system theme'),
+              value: ThemeMode.system,
+              groupValue: themeProvider.themeMode,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSettingsDialog(BuildContext context) {
