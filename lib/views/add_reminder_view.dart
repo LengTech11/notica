@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 
@@ -50,16 +51,18 @@ class _AddReminderViewState extends State<AddReminderView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Reminder' : 'Create Reminder'),
+        title: Text(isEditing ? l10n.editReminder : l10n.createReminder),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           if (isEditing)
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: _deleteReminder,
-              tooltip: 'Delete Reminder',
+              tooltip: l10n.deleteReminder,
             ),
         ],
       ),
@@ -71,18 +74,18 @@ class _AddReminderViewState extends State<AddReminderView> {
             // Title field
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Reminder Title *',
-                hintText: 'e.g., Take medication, Call dentist, Meeting',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.title),
+              decoration: InputDecoration(
+                labelText: l10n.reminderTitle,
+                hintText: l10n.reminderTitleHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.title),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a reminder title';
+                  return l10n.pleaseEnterTitle;
                 }
                 if (value.trim().length < 2) {
-                  return 'Title must be at least 2 characters long';
+                  return l10n.titleTooShort;
                 }
                 return null;
               },
@@ -95,11 +98,11 @@ class _AddReminderViewState extends State<AddReminderView> {
             // Description field
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                hintText: 'Add details about this reminder...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
+              decoration: InputDecoration(
+                labelText: l10n.description,
+                hintText: l10n.descriptionHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.description),
               ),
               maxLines: 3,
               maxLength: 200,
@@ -141,7 +144,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      isEditing ? 'Update Reminder' : 'Create Reminder',
+                      isEditing ? l10n.saveReminder : l10n.createReminderButton,
                       style: const TextStyle(fontSize: 16),
                     ),
             ),
@@ -157,6 +160,8 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   Widget _buildDateTimeSection() {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -171,7 +176,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'When should we remind you?',
+                  l10n.whenRemindYou,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -246,6 +251,8 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   Widget _buildFrequencySection() {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -260,7 +267,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'How often?',
+                  l10n.howOften,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -334,7 +341,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Priority Level',
+                  l10n.priority,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -370,6 +377,8 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   Widget _buildTagsSection() {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -384,7 +393,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Tags (Optional)',
+                  l10n.tags,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -400,10 +409,10 @@ class _AddReminderViewState extends State<AddReminderView> {
 
             TextFormField(
               controller: _tagsController,
-              decoration: const InputDecoration(
-                hintText: 'work, health, family (comma separated)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.local_offer),
+              decoration: InputDecoration(
+                hintText: l10n.tagsHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.local_offer),
               ),
               maxLength: 100,
             ),
@@ -466,17 +475,19 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   String _getFrequencyDisplayText(ReminderFrequency frequency) {
+    final l10n = AppLocalizations.of(context)!;
+    
     switch (frequency) {
       case ReminderFrequency.once:
-        return 'One time';
+        return l10n.frequencyOnce;
       case ReminderFrequency.daily:
-        return 'Daily';
+        return l10n.frequencyDaily;
       case ReminderFrequency.weekly:
-        return 'Weekly';
+        return l10n.frequencyWeekly;
       case ReminderFrequency.weekdays:
-        return 'Weekdays';
+        return l10n.frequencyWeekdays;
       case ReminderFrequency.weekends:
-        return 'Weekends';
+        return l10n.frequencyWeekends;
     }
   }
 
@@ -496,13 +507,15 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   String _getPriorityDisplayText(ReminderPriority priority) {
+    final l10n = AppLocalizations.of(context)!;
+    
     switch (priority) {
       case ReminderPriority.low:
-        return 'Low Priority';
+        return l10n.priorityLow;
       case ReminderPriority.normal:
-        return 'Normal Priority';
+        return l10n.priorityNormal;
       case ReminderPriority.high:
-        return 'High Priority';
+        return l10n.priorityHigh;
     }
   }
 
@@ -589,15 +602,16 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   String _formatDate(DateTime dateTime) {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
     final selected = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
     if (selected == today) {
-      return 'Today';
+      return l10n.today;
     } else if (selected == tomorrow) {
-      return 'Tomorrow';
+      return l10n.tomorrow;
     } else {
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }
@@ -668,12 +682,13 @@ class _AddReminderViewState extends State<AddReminderView> {
       }
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               isEditing
-                  ? 'Reminder updated successfully!'
-                  : 'Reminder created successfully!',
+                  ? l10n.reminderUpdated
+                  : l10n.reminderCreated,
             ),
             backgroundColor: Colors.green,
           ),
@@ -700,31 +715,33 @@ class _AddReminderViewState extends State<AddReminderView> {
   }
 
   Future<void> _deleteReminder() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Reminder'),
+        title: Text(l10n.deleteReminder),
         content: Text(
-          'Are you sure you want to delete "${widget.reminderToEdit!.title}"? '
-          'This action cannot be undone.',
+          l10n.deleteReminderConfirm(widget.reminderToEdit!.title),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
+      final l10n = AppLocalizations.of(context)!;
       final navigator = Navigator.of(context);
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
@@ -741,8 +758,8 @@ class _AddReminderViewState extends State<AddReminderView> {
 
         if (mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Reminder deleted successfully!'),
+            SnackBar(
+              content: Text(l10n.reminderDeleted),
               backgroundColor: Colors.green,
             ),
           );

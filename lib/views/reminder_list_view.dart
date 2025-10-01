@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 import '../services/notification_service.dart';
+import '../providers/locale_provider.dart';
 import '../providers/theme_provider.dart';
 import 'add_reminder_view.dart';
 import 'onboarding_view.dart';
@@ -13,6 +15,8 @@ class ReminderListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -35,7 +39,7 @@ class ReminderListView extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Text('Notica'),
+            Text(l10n.appTitle),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -43,11 +47,18 @@ class ReminderListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.science),
             onPressed: () => _testNotification(context),
-            tooltip: 'Test Notification',
+            tooltip: l10n.testNotification,
           ),
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'language',
+                child: ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(l10n.language),
+                ),
+              ),
               PopupMenuItem(
                 value: 'theme',
                 child: ListTile(
@@ -56,24 +67,22 @@ class ReminderListView extends StatelessWidget {
                   subtitle: Text(_getThemeModeText(context)),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'settings',
                 child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Settings'),
+                  leading: const Icon(Icons.settings),
+                  title: Text(l10n.settings),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'about',
                 child: ListTile(
-                  leading: Icon(Icons.info),
-                  title: Text('About Notica'),
+                  leading: const Icon(Icons.info),
+                  title: Text(l10n.aboutNotica),
                 ),
               ),
             ],
           ),
-        ],
-      ),
       body: Consumer<ReminderViewModel>(
         builder: (context, reminderViewModel, child) {
           if (reminderViewModel.isLoading) {
@@ -109,14 +118,16 @@ class ReminderListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToAddReminder(context),
-        tooltip: 'Create Reminder',
+        tooltip: l10n.createReminder,
         icon: const Icon(Icons.add),
-        label: const Text('New Reminder'),
+        label: Text(l10n.newReminder),
       ),
     );
   }
 
   Widget _buildErrorView(BuildContext context, ReminderViewModel viewModel) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +146,7 @@ class ReminderListView extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => viewModel.initialize(),
-            child: const Text('Retry'),
+            child: Text(l10n.retry),
           ),
         ],
       ),
@@ -143,6 +154,8 @@ class ReminderListView extends StatelessWidget {
   }
 
   Widget _buildEmptyView(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -169,14 +182,14 @@ class ReminderListView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Welcome to Notica!',
+            l10n.welcomeToNotica,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first reminder to get started',
+            l10n.createFirstReminder,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
@@ -189,7 +202,7 @@ class ReminderListView extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => _navigateToAddReminder(context),
             icon: const Icon(Icons.add),
-            label: const Text('Create First Reminder'),
+            label: Text(l10n.createFirstReminderButton),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -200,6 +213,7 @@ class ReminderListView extends StatelessWidget {
   }
 
   Widget _buildStatsCard(BuildContext context, ReminderViewModel viewModel) {
+    final l10n = AppLocalizations.of(context)!;
     final todaysReminders = viewModel.todaysReminders;
     final completionPercentage = viewModel.todayCompletionPercentage;
     final dueCount = viewModel.dueReminders.length;
@@ -220,7 +234,7 @@ class ReminderListView extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Today\'s Overview',
+                  l10n.todayOverview,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -235,7 +249,7 @@ class ReminderListView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Progress',
+                    l10n.progress,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
@@ -266,7 +280,7 @@ class ReminderListView extends StatelessWidget {
                     context,
                     Icons.schedule,
                     dueCount.toString(),
-                    'Due Now',
+                    l10n.dueNow,
                     dueCount > 0 ? Colors.red : Colors.grey,
                   ),
                 ),
@@ -275,7 +289,7 @@ class ReminderListView extends StatelessWidget {
                     context,
                     Icons.upcoming,
                     upcomingCount.toString(),
-                    'Upcoming',
+                    l10n.upcoming,
                     Colors.orange,
                   ),
                 ),
@@ -284,7 +298,7 @@ class ReminderListView extends StatelessWidget {
                     context,
                     Icons.calendar_today,
                     todaysReminders.length.toString(),
-                    'Today',
+                    l10n.today,
                     Colors.blue,
                   ),
                 ),
@@ -335,6 +349,8 @@ class ReminderListView extends StatelessWidget {
     BuildContext context,
     ReminderViewModel viewModel,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -342,14 +358,14 @@ class ReminderListView extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.warning,
                 color: Colors.red,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                'Reminders Due Now',
+                l10n.remindersDueNow,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.red,
@@ -384,6 +400,8 @@ class ReminderListView extends StatelessWidget {
     Reminder reminder,
     ReminderViewModel viewModel,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Card(
       color: Colors.red.withValues(alpha: 0.1),
       child: Padding(
@@ -433,7 +451,7 @@ class ReminderListView extends StatelessWidget {
                       minimumSize: const Size(0, 18), // Much smaller height
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text('Snooze', style: TextStyle(fontSize: 9)),
+                    child: Text(l10n.snooze, style: const TextStyle(fontSize: 9)),
                   ),
                 ),
                 const SizedBox(width: 2),
@@ -446,7 +464,7 @@ class ReminderListView extends StatelessWidget {
                       minimumSize: const Size(0, 18), // Much smaller height
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text('Done', style: TextStyle(fontSize: 9)),
+                    child: Text(l10n.done, style: const TextStyle(fontSize: 9)),
                   ),
                 ),
               ],
@@ -659,30 +677,33 @@ class ReminderListView extends StatelessWidget {
                   minWidth: 32,
                   minHeight: 32,
                 ),
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: ListTile(
-                      leading: Icon(Icons.edit),
-                      title: Text('Edit'),
-                    ),
-                  ),
-                  if (!isCompleted)
-                    const PopupMenuItem(
-                      value: 'snooze',
+                itemBuilder: (context) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return [
+                    PopupMenuItem(
+                      value: 'edit',
                       child: ListTile(
-                        leading: Icon(Icons.snooze),
-                        title: Text('Snooze'),
+                        leading: const Icon(Icons.edit),
+                        title: Text(l10n.edit),
                       ),
                     ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(Icons.delete),
-                      title: Text('Delete'),
+                    if (!isCompleted)
+                      PopupMenuItem(
+                        value: 'snooze',
+                        child: ListTile(
+                          leading: const Icon(Icons.snooze),
+                          title: Text(l10n.snooze),
+                        ),
+                      ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: const Icon(Icons.delete),
+                        title: Text(l10n.delete),
+                      ),
                     ),
-                  ),
-                ],
+                  ];
+                },
               ),
             ],
           ),
@@ -692,6 +713,16 @@ class ReminderListView extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
+    final context = WidgetsBinding.instance.rootElement;
+    if (context == null) {
+      return '${dateTime.day}/${dateTime.month}';
+    }
+    
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return '${dateTime.day}/${dateTime.month}';
+    }
+    
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
@@ -699,16 +730,16 @@ class ReminderListView extends StatelessWidget {
 
     String dateText;
     if (reminderDate == today) {
-      dateText = 'Today';
+      dateText = l10n.today;
     } else if (reminderDate == tomorrow) {
-      dateText = 'Tomorrow';
+      dateText = l10n.tomorrow;
     } else if (reminderDate.isBefore(today)) {
       final daysPast = today.difference(reminderDate).inDays;
-      dateText = '$daysPast ${daysPast == 1 ? 'day' : 'days'} ago';
+      dateText = daysPast == 1 ? l10n.dayAgo(daysPast) : l10n.daysAgo(daysPast);
     } else {
       final daysAhead = reminderDate.difference(today).inDays;
       if (daysAhead <= 7) {
-        dateText = 'in $daysAhead ${daysAhead == 1 ? 'day' : 'days'}';
+        dateText = daysAhead == 1 ? l10n.inDay(daysAhead) : l10n.inDays(daysAhead);
       } else {
         dateText = '${dateTime.day}/${dateTime.month}';
       }
@@ -716,7 +747,7 @@ class ReminderListView extends StatelessWidget {
 
     final timeText =
         '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    return '$dateText at $timeText';
+    return '$dateText ${l10n.at} $timeText';
   }
 
   void _showSnoozeOptions(
@@ -724,6 +755,8 @@ class ReminderListView extends StatelessWidget {
     Reminder reminder,
     ReminderViewModel viewModel,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -732,13 +765,13 @@ class ReminderListView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Snooze Reminder',
+              l10n.snoozeReminder,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.schedule),
-              title: const Text('15 minutes'),
+              title: Text(l10n.minutes15),
               onTap: () {
                 Navigator.pop(context);
                 viewModel.snoozeReminder(
@@ -747,7 +780,7 @@ class ReminderListView extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.schedule),
-              title: const Text('1 hour'),
+              title: Text(l10n.hour1),
               onTap: () {
                 Navigator.pop(context);
                 viewModel.snoozeReminder(reminder.id, const Duration(hours: 1));
@@ -755,7 +788,7 @@ class ReminderListView extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.schedule),
-              title: const Text('Tomorrow'),
+              title: Text(l10n.tomorrow),
               onTap: () {
                 Navigator.pop(context);
                 viewModel.snoozeReminder(reminder.id, const Duration(days: 1));
@@ -788,6 +821,9 @@ class ReminderListView extends StatelessWidget {
 
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
+      case 'language':
+        _showLanguageDialog(context);
+        break;
       case 'theme':
         _showThemeDialog(context);
         break;
@@ -812,9 +848,50 @@ class ReminderListView extends StatelessWidget {
     }
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.changeLanguage),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: Text(l10n.languageEnglish),
+              onTap: () {
+                localeProvider.setLocale(const Locale('en'));
+                Navigator.pop(context);
+              },
+              selected: localeProvider.locale.languageCode == 'en',
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: Text(l10n.languageKhmer),
+              onTap: () {
+                localeProvider.setLocale(const Locale('km'));
+                Navigator.pop(context);
+              },
+              selected: localeProvider.locale.languageCode == 'km',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showThemeDialog(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -871,10 +948,12 @@ class ReminderListView extends StatelessWidget {
   }
 
   void _showSettingsDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -906,18 +985,21 @@ class ReminderListView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
     );
   }
 
+
   void _showAboutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showDialog(
       context: context,
       builder: (context) => AboutDialog(
-        applicationName: 'Notica',
+        applicationName: l10n.appTitle,
         applicationVersion: '1.0.0',
         applicationIcon: Container(
           padding: const EdgeInsets.all(8),
@@ -936,9 +1018,8 @@ class ReminderListView extends StatelessWidget {
             size: 32,
           ),
         ),
-        children: const [
-          Text(
-              'A modern reminder and notification app designed to help you stay organized and never miss important tasks.'),
+        children: [
+          Text(l10n.aboutDescription),
         ],
       ),
     );
@@ -958,15 +1039,17 @@ class ReminderListView extends StatelessWidget {
     Reminder reminder,
     ReminderViewModel viewModel,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Reminder'),
-        content: Text('Are you sure you want to delete "${reminder.title}"?'),
+        title: Text(l10n.deleteReminder),
+        content: Text(l10n.deleteReminderConfirm(reminder.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -976,7 +1059,7 @@ class ReminderListView extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -1047,6 +1130,7 @@ class ReminderListView extends StatelessWidget {
               viewModel.completeReminder(reminder.id);
               // Show completion feedback
               if (context.mounted) {
+                final l10n = AppLocalizations.of(context)!;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Row(
@@ -1055,7 +1139,7 @@ class ReminderListView extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '"${reminder.title}" completed! 🎉',
+                            l10n.reminderCompleted(reminder.title),
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
@@ -1095,6 +1179,8 @@ class ReminderListView extends StatelessWidget {
 
   void _undoCompletion(
       BuildContext context, Reminder reminder, ReminderViewModel viewModel) {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Use the new undo method from the viewmodel
     viewModel.undoCompletion(reminder.id);
 
@@ -1107,7 +1193,7 @@ class ReminderListView extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '"${reminder.title}" unmarked as completed',
+                l10n.reminderUncompleted(reminder.title),
                 style: const TextStyle(color: Colors.white),
               ),
             ),

@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+
 import 'services/notification_service.dart';
 import 'services/onboarding_service.dart';
 import 'viewmodels/reminder_viewmodel.dart';
+
+import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
+
 import 'views/reminder_list_view.dart';
 import 'views/onboarding_view.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 void main() async {
-  // Needed if you intend to initialize in the main function
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the notification service early
+  // Initialize services
   final notificationService = NotificationService();
   await notificationService.initialize();
 
-  // Initialize the onboarding service
   final onboardingService = OnboardingService();
   await onboardingService.initialize();
 
@@ -29,14 +34,26 @@ class NoticaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ReminderViewModel()),
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ReminderViewModel()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer2<LocaleProvider, ThemeProvider>(
+        builder: (context, localeProvider, themeProvider, child) {
           return MaterialApp(
             title: 'Notica',
             debugShowCheckedModeBanner: false,
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('km'), // Khmer
+            ],
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.deepPurple,
@@ -55,6 +72,10 @@ class NoticaApp extends StatelessWidget {
             ),
             themeMode: themeProvider.themeMode,
             home: const NoticaHome(),
+            routes: {
+              '/home': (_) => const NoticaHome(),
+              '/onboarding': (_) => const OnboardingView(),
+            },
           );
         },
       ),
@@ -73,15 +94,12 @@ class AppInitializer extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
         final isOnboardingComplete = snapshot.data ?? false;
 
-        // Use addPostFrameCallback to navigate after the build is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (isOnboardingComplete) {
             Navigator.of(context).pushReplacementNamed('/home');
@@ -91,9 +109,7 @@ class AppInitializer extends StatelessWidget {
         });
 
         return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+          body: Center(child: CircularProgressIndicator()),
         );
       },
     );
@@ -111,7 +127,6 @@ class _NoticaHomeState extends State<NoticaHome> {
   @override
   void initState() {
     super.initState();
-    // Initialize the reminder view model and theme provider when the app starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ReminderViewModel>(context, listen: false).initialize();
       Provider.of<ThemeProvider>(context, listen: false).initialize();
