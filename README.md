@@ -13,6 +13,7 @@ A Flutter habit tracking application built using the MVVM (Model-View-ViewModel)
 - ✏️ **Edit existing habits** (name and reminder time)
 - 🗑️ **Delete habits** with confirmation dialog
 - 🌙 **Dark mode support** (follows system preference)
+- 🌍 **Multi-language support** - English and Khmer (ខ្មែរ)
 
 ## Architecture
 
@@ -31,6 +32,11 @@ lib/
 │   └── add_habit_view.dart     # Add/edit habit screen
 ├── services/
 │   └── notification_service.dart # Local notification handling
+├── providers/
+│   └── locale_provider.dart    # Language preference management
+├── l10n/
+│   ├── app_en.arb             # English translations
+│   └── app_km.arb             # Khmer translations
 └── main.dart                   # App entry point with Provider setup
 ```
 
@@ -40,11 +46,29 @@ lib/
 - **ViewModel**: `HabitViewModel` manages state using Provider/ChangeNotifier
 - **View**: UI components (`HabitListView`, `AddHabitView`) that observe ViewModel
 - **Service**: `NotificationService` handles local notifications
+- **Localization**: ARB files for multi-language support
+
+## Multi-Language Support
+
+The app supports the following languages:
+- 🇬🇧 English (en)
+- 🇰🇭 Khmer / ខ្មែរ (km)
+
+### Changing Language
+
+1. Open the app
+2. Tap the menu button (⋮) in the top-right corner
+3. Select "Language" / "ភាសា"
+4. Choose your preferred language
+5. The app will immediately switch to the selected language
+
+The selected language preference is saved and will persist across app restarts.
 
 ## Dependencies
 
 - **`provider`** (^6.1.2) - State management and dependency injection
 - **`flutter_local_notifications`** (^17.2.2) - Local notifications
+- **`flutter_localizations`** - Multi-language support
 - **`permission_handler`** (^11.3.1) - Notification permissions
 - **`intl`** (^0.19.0) - Date/time formatting utilities
 
