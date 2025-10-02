@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 import '../services/notification_service.dart';
@@ -35,7 +36,7 @@ class ReminderListView extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Text('Notica'),
+            Text('app_name'.tr()),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -43,31 +44,39 @@ class ReminderListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.science),
             onPressed: () => _testNotification(context),
-            tooltip: 'Test Notification',
+            tooltip: 'menu.test_notification'.tr(),
           ),
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
             itemBuilder: (context) => [
               PopupMenuItem(
+                value: 'language',
+                child: ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text('menu.language'.tr()),
+                  subtitle: Text(context.locale.languageCode == 'km' ? 'ខ្មែរ' : 'English'),
+                ),
+              ),
+              PopupMenuItem(
                 value: 'theme',
                 child: ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: const Text('Theme'),
+                  title: Text('menu.theme'.tr()),
                   subtitle: Text(_getThemeModeText(context)),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'settings',
                 child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Settings'),
+                  leading: const Icon(Icons.settings),
+                  title: Text('menu.settings'.tr()),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'about',
                 child: ListTile(
-                  leading: Icon(Icons.info),
-                  title: Text('About Notica'),
+                  leading: const Icon(Icons.info),
+                  title: Text('menu.about'.tr()),
                 ),
               ),
             ],
@@ -109,9 +118,9 @@ class ReminderListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToAddReminder(context),
-        tooltip: 'Create Reminder',
+        tooltip: 'reminder_form.create_title'.tr(),
         icon: const Icon(Icons.add),
-        label: const Text('New Reminder'),
+        label: Text('reminder_list.new_reminder'.tr()),
       ),
     );
   }
@@ -135,7 +144,7 @@ class ReminderListView extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => viewModel.initialize(),
-            child: const Text('Retry'),
+            child: Text('common.retry'.tr()),
           ),
         ],
       ),
@@ -169,14 +178,14 @@ class ReminderListView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Welcome to Notica!',
+            'reminder_list.no_reminders'.tr(),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first reminder to get started',
+            'reminder_list.start_message'.tr(),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
@@ -189,7 +198,7 @@ class ReminderListView extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => _navigateToAddReminder(context),
             icon: const Icon(Icons.add),
-            label: const Text('Create First Reminder'),
+            label: Text('reminder_list.create_first'.tr()),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -788,6 +797,9 @@ class ReminderListView extends StatelessWidget {
 
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
+      case 'language':
+        _showLanguageDialog(context);
+        break;
       case 'theme':
         _showThemeDialog(context);
         break;
@@ -804,11 +816,11 @@ class ReminderListView extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     switch (themeProvider.themeMode) {
       case ThemeMode.light:
-        return 'Light';
+        return 'theme.light'.tr();
       case ThemeMode.dark:
-        return 'Dark';
+        return 'theme.dark'.tr();
       case ThemeMode.system:
-        return 'System';
+        return 'theme.system'.tr();
     }
   }
 
@@ -818,13 +830,13 @@ class ReminderListView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choose Theme'),
+        title: Text('theme.choose_theme'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<ThemeMode>(
-              title: const Text('Light'),
-              subtitle: const Text('Always use light theme'),
+              title: Text('theme.light'.tr()),
+              subtitle: Text('theme.light_description'.tr()),
               value: ThemeMode.light,
               groupValue: themeProvider.themeMode,
               onChanged: (ThemeMode? value) {
@@ -835,8 +847,8 @@ class ReminderListView extends StatelessWidget {
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('Dark'),
-              subtitle: const Text('Always use dark theme'),
+              title: Text('theme.dark'.tr()),
+              subtitle: Text('theme.dark_description'.tr()),
               value: ThemeMode.dark,
               groupValue: themeProvider.themeMode,
               onChanged: (ThemeMode? value) {
@@ -847,8 +859,8 @@ class ReminderListView extends StatelessWidget {
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('System'),
-              subtitle: const Text('Follow system theme'),
+              title: Text('theme.system'.tr()),
+              subtitle: Text('theme.system_description'.tr()),
               value: ThemeMode.system,
               groupValue: themeProvider.themeMode,
               onChanged: (ThemeMode? value) {
@@ -863,7 +875,49 @@ class ReminderListView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('common.cancel'.tr()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('menu.language'.tr()),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<Locale>(
+              title: const Text('English'),
+              value: const Locale('en'),
+              groupValue: context.locale,
+              onChanged: (Locale? value) {
+                if (value != null) {
+                  context.setLocale(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<Locale>(
+              title: const Text('ខ្មែរ (Khmer)'),
+              value: const Locale('km'),
+              groupValue: context.locale,
+              onChanged: (Locale? value) {
+                if (value != null) {
+                  context.setLocale(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('common.cancel'.tr()),
           ),
         ],
       ),
@@ -874,15 +928,15 @@ class ReminderListView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Settings'),
+        title: Text('settings.title'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
               leading: const Icon(Icons.school),
-              title: const Text('View Onboarding Tutorial'),
-              subtitle: const Text('See the app introduction again'),
+              title: Text('settings.onboarding'.tr()),
+              subtitle: Text('settings.onboarding_description'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -894,11 +948,11 @@ class ReminderListView extends StatelessWidget {
               },
             ),
             const Divider(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Text(
-                'More settings will be available in future updates.',
-                style: TextStyle(fontSize: 12),
+                'settings.more_settings'.tr(),
+                style: const TextStyle(fontSize: 12),
               ),
             ),
           ],
@@ -906,7 +960,7 @@ class ReminderListView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text('settings.close'.tr()),
           ),
         ],
       ),
