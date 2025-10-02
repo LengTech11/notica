@@ -1,0 +1,170 @@
+{
+  "app_name": "Notica",
+  "reminders": "Reminders",
+  "habits": "Habits",
+  
+  "menu": {
+    "language": "Language",
+    "theme": "Theme",
+    "settings": "Settings",
+    "about": "About Notica",
+    "test_notification": "Test Notification"
+  },
+  
+  "theme": {
+    "choose_theme": "Choose Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "light_description": "Always use light theme",
+    "dark_description": "Always use dark theme",
+    "system_description": "Follow system theme"
+  },
+  
+  "settings": {
+    "title": "Settings",
+    "onboarding": "View Onboarding Tutorial",
+    "onboarding_description": "See the app introduction again",
+    "more_settings": "More settings will be available in future updates.",
+    "close": "Close"
+  },
+  
+  "about": {
+    "title": "About Notica",
+    "version": "Version",
+    "description": "A modern reminder and notification app with MVVM architecture",
+    "developer": "Developed by",
+    "license": "License"
+  },
+  
+  "reminder_list": {
+    "new_reminder": "New Reminder",
+    "create_first": "Create First Reminder",
+    "no_reminders": "No reminders yet",
+    "start_message": "Start by creating your first reminder!",
+    "retry": "Retry",
+    "error_loading": "Failed to load reminders",
+    "due_reminders": "Due Reminders",
+    "upcoming": "Upcoming",
+    "completed": "Completed",
+    "edit": "Edit",
+    "snooze": "Snooze",
+    "delete": "Delete",
+    "done": "Done",
+    "mark_complete": "Mark as Complete"
+  },
+  
+  "snooze": {
+    "title": "Snooze Reminder",
+    "15_minutes": "15 minutes",
+    "1_hour": "1 hour",
+    "tomorrow": "Tomorrow",
+    "cancel": "Cancel"
+  },
+  
+  "reminder_form": {
+    "create_title": "Create Reminder",
+    "edit_title": "Edit Reminder",
+    "title_label": "Reminder Title *",
+    "title_hint": "e.g., Take medication, Call dentist, Meeting",
+    "title_required": "Please enter a reminder title",
+    "title_min_length": "Title must be at least 2 characters long",
+    "description_label": "Description (Optional)",
+    "description_hint": "Add details about this reminder...",
+    "date_time_label": "Date & Time",
+    "select_date_time": "Select Date & Time",
+    "frequency_label": "Frequency",
+    "priority_label": "Priority",
+    "tags_label": "Tags (Optional)",
+    "tags_hint": "work, personal, health (comma-separated)",
+    "save": "Save Reminder",
+    "saving": "Saving...",
+    "delete_tooltip": "Delete Reminder",
+    "delete_confirm_title": "Delete Reminder?",
+    "delete_confirm_message": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  
+  "frequency": {
+    "once": "Once",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly"
+  },
+  
+  "priority": {
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  
+  "habit_list": {
+    "title": "Habits",
+    "new_habit": "New Habit",
+    "create_first": "Create First Habit",
+    "no_habits": "No habits yet",
+    "start_message": "Start building good habits!",
+    "current_streak": "Current Streak",
+    "days": "days",
+    "today": "Today",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  
+  "habit_form": {
+    "create_title": "Create Habit",
+    "edit_title": "Edit Habit",
+    "name_label": "Habit Name *",
+    "name_hint": "e.g., Drink water, Exercise, Read",
+    "name_required": "Please enter a habit name",
+    "name_min_length": "Name must be at least 2 characters long",
+    "description_label": "Description (Optional)",
+    "description_hint": "Add details about this habit...",
+    "goal_label": "Daily Goal",
+    "target_days_label": "Target Days per Week",
+    "save": "Save Habit",
+    "saving": "Saving...",
+    "delete_tooltip": "Delete Habit",
+    "delete_confirm_title": "Delete Habit?",
+    "delete_confirm_message": "This will delete all progress for this habit.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "get_started": "Get Started",
+    "page1_title": "Welcome to Notica",
+    "page1_description": "Your personal reminder and habit tracking companion. Stay organized and build better habits.",
+    "page2_title": "Set Smart Reminders",
+    "page2_description": "Create reminders with custom schedules, priorities, and notifications. Never miss important tasks again.",
+    "page3_title": "Track Your Habits",
+    "page3_description": "Build and maintain positive habits with daily tracking and streak counters.",
+    "page4_title": "Stay Notified",
+    "page4_description": "Get timely notifications for your reminders. Customize when and how you're reminded."
+  },
+  
+  "notification": {
+    "test_title": "Test Notification",
+    "test_message": "This is a test notification from Notica!",
+    "permission_required": "Notification Permission Required",
+    "permission_message": "Please enable notifications in your device settings to receive reminders.",
+    "ok": "OK"
+  },
+  
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "done": "Done",
+    "retry": "Retry",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close"
+  }
+}

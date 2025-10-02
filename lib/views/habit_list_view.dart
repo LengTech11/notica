@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
 import '../services/notification_service.dart';
@@ -13,13 +14,13 @@ class HabitListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Habit Tracker'),
+        title: Text('habit_list.title'.tr()),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () => _testNotification(context),
-            tooltip: 'Test Notification',
+            tooltip: 'menu.test_notification'.tr(),
           ),
         ],
       ),
@@ -48,7 +49,7 @@ class HabitListView extends StatelessWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => habitViewModel.initialize(),
-                    child: const Text('Retry'),
+                    child: Text('common.retry'.tr()),
                   ),
                 ],
               ),
@@ -69,12 +70,12 @@ class HabitListView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No habits yet!',
+                    'habit_list.no_habits'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Start building good habits by tapping the + button',
+                    'habit_list.start_message'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -105,7 +106,7 @@ class HabitListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToAddHabit(context),
-        tooltip: 'Add Habit',
+        tooltip: 'habit_list.new_habit'.tr(),
         child: const Icon(Icons.add),
       ),
     );

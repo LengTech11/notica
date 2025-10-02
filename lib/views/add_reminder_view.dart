@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import '../models/reminder.dart';
 import '../viewmodels/reminder_viewmodel.dart';
 
@@ -52,14 +53,14 @@ class _AddReminderViewState extends State<AddReminderView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Reminder' : 'Create Reminder'),
+        title: Text(isEditing ? 'reminder_form.edit_title'.tr() : 'reminder_form.create_title'.tr()),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           if (isEditing)
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: _deleteReminder,
-              tooltip: 'Delete Reminder',
+              tooltip: 'reminder_form.delete_tooltip'.tr(),
             ),
         ],
       ),
@@ -71,18 +72,18 @@ class _AddReminderViewState extends State<AddReminderView> {
             // Title field
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Reminder Title *',
-                hintText: 'e.g., Take medication, Call dentist, Meeting',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.title),
+              decoration: InputDecoration(
+                labelText: 'reminder_form.title_label'.tr(),
+                hintText: 'reminder_form.title_hint'.tr(),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.title),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a reminder title';
+                  return 'reminder_form.title_required'.tr();
                 }
                 if (value.trim().length < 2) {
-                  return 'Title must be at least 2 characters long';
+                  return 'reminder_form.title_min_length'.tr();
                 }
                 return null;
               },
@@ -95,11 +96,11 @@ class _AddReminderViewState extends State<AddReminderView> {
             // Description field
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                hintText: 'Add details about this reminder...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
+              decoration: InputDecoration(
+                labelText: 'reminder_form.description_label'.tr(),
+                hintText: 'reminder_form.description_hint'.tr(),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.description),
               ),
               maxLines: 3,
               maxLength: 200,
@@ -141,7 +142,7 @@ class _AddReminderViewState extends State<AddReminderView> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      isEditing ? 'Update Reminder' : 'Create Reminder',
+                      isEditing ? 'reminder_form.save'.tr() : 'reminder_form.save'.tr(),
                       style: const TextStyle(fontSize: 16),
                     ),
             ),
@@ -468,11 +469,11 @@ class _AddReminderViewState extends State<AddReminderView> {
   String _getFrequencyDisplayText(ReminderFrequency frequency) {
     switch (frequency) {
       case ReminderFrequency.once:
-        return 'One time';
+        return 'frequency.once'.tr();
       case ReminderFrequency.daily:
-        return 'Daily';
+        return 'frequency.daily'.tr();
       case ReminderFrequency.weekly:
-        return 'Weekly';
+        return 'frequency.weekly'.tr();
       case ReminderFrequency.weekdays:
         return 'Weekdays';
       case ReminderFrequency.weekends:
@@ -498,11 +499,11 @@ class _AddReminderViewState extends State<AddReminderView> {
   String _getPriorityDisplayText(ReminderPriority priority) {
     switch (priority) {
       case ReminderPriority.low:
-        return 'Low Priority';
+        return 'priority.low'.tr();
       case ReminderPriority.normal:
-        return 'Normal Priority';
+        return 'priority.normal'.tr();
       case ReminderPriority.high:
-        return 'High Priority';
+        return 'priority.high'.tr();
     }
   }
 
@@ -703,22 +704,21 @@ class _AddReminderViewState extends State<AddReminderView> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Reminder'),
+        title: Text('reminder_form.delete_confirm_title'.tr()),
         content: Text(
-          'Are you sure you want to delete "${widget.reminderToEdit!.title}"? '
-          'This action cannot be undone.',
+          '${'reminder_form.delete_confirm_message'.tr()}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text('common.delete'.tr()),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
 
@@ -41,7 +42,7 @@ class _AddHabitViewState extends State<AddHabitView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Habit' : 'Add New Habit'),
+        title: Text(isEditing ? 'habit_form.edit_title'.tr() : 'habit_form.create_title'.tr()),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
@@ -54,18 +55,18 @@ class _AddHabitViewState extends State<AddHabitView> {
               // Habit name field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Habit Name',
-                  hintText: 'e.g., Drink water, Exercise, Read books',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'habit_form.name_label'.tr(),
+                  hintText: 'habit_form.name_hint'.tr(),
+                  border: const OutlineInputBorder(),
                   prefixIcon: Icon(Icons.track_changes),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a habit name';
+                    return 'habit_form.name_required'.tr();
                   }
                   if (value.trim().length < 2) {
-                    return 'Habit name must be at least 2 characters long';
+                    return 'habit_form.name_min_length'.tr();
                   }
                   return null;
                 },
@@ -145,7 +146,7 @@ class _AddHabitViewState extends State<AddHabitView> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        isEditing ? 'Update Habit' : 'Create Habit',
+                        'habit_form.save'.tr(),
                         style: const TextStyle(fontSize: 16),
                       ),
               ),
@@ -162,9 +163,9 @@ class _AddHabitViewState extends State<AddHabitView> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'Delete Habit',
-                    style: TextStyle(fontSize: 16),
+                  child: Text(
+                    'habit_form.delete_tooltip'.tr(),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ],
@@ -306,22 +307,21 @@ class _AddHabitViewState extends State<AddHabitView> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Habit'),
+        title: Text('habit_form.delete_confirm_title'.tr()),
         content: Text(
-          'Are you sure you want to delete "${widget.habitToEdit!.name}"? '
-          'This action cannot be undone.',
+          'habit_form.delete_confirm_message'.tr(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text('common.delete'.tr()),
           ),
         ],
       ),
