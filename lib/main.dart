@@ -4,8 +4,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'services/notification_service.dart';
 import 'services/onboarding_service.dart';
 import 'viewmodels/reminder_viewmodel.dart';
+import 'viewmodels/calendar_viewmodel.dart';
+import 'viewmodels/planner_viewmodel.dart';
 import 'providers/theme_provider.dart';
 import 'views/reminder_list_view.dart';
+import 'views/calendar_view.dart';
+import 'views/planner_view.dart';
+import 'views/onboarding_view.dart';
 
 void main() async {
   // Needed if you intend to initialize in the main function
@@ -43,6 +48,8 @@ class NoticaApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ReminderViewModel()),
+        ChangeNotifierProvider(create: (context) => CalendarViewModel()),
+        ChangeNotifierProvider(create: (context) => PlannerViewModel()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -124,18 +131,55 @@ class NoticaHome extends StatefulWidget {
 }
 
 class _NoticaHomeState extends State<NoticaHome> {
+  int _currentIndex = 0;
+  
+  final List<Widget> _pages = [
+    const ReminderListView(),
+    const CalendarView(),
+    const PlannerView(),
+  ];
+
   @override
   void initState() {
     super.initState();
-    // Initialize the reminder view model and theme provider when the app starts
+    // Initialize the view models when the app starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ReminderViewModel>(context, listen: false).initialize();
+      Provider.of<CalendarViewModel>(context, listen: false).initialize();
+      Provider.of<PlannerViewModel>(context, listen: false).initialize();
       Provider.of<ThemeProvider>(context, listen: false).initialize();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const ReminderListView();
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.notifications_outlined),
+            selectedIcon: Icon(Icons.notifications),
+            label: 'Reminders',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today_outlined),
+            selectedIcon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.task_outlined),
+            selectedIcon: Icon(Icons.task),
+            label: 'Planner',
+          ),
+        ],
+      ),
+    );
   }
 }
