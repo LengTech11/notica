@@ -15,7 +15,7 @@ import 'views/onboarding_view.dart';
 void main() async {
   // Needed if you intend to initialize in the main function
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize EasyLocalization
   await EasyLocalization.ensureInitialized();
 
