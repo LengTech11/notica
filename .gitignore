@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase configuration files (use .example files as templates)
+google-services.json
+GoogleService-Info.plist
+firebase.json
+.firebaserc
+
