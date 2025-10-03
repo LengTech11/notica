@@ -12,7 +12,6 @@ import 'providers/theme_provider.dart';
 import 'views/reminder_list_view.dart';
 import 'views/calendar_view.dart';
 import 'views/planner_view.dart';
-import 'views/onboarding_view.dart';
 
 void main() async {
   // Needed if you intend to initialize in the main function
@@ -152,7 +151,7 @@ class NoticaHome extends StatefulWidget {
 
 class _NoticaHomeState extends State<NoticaHome> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _pages = [
     const ReminderListView(),
     const CalendarView(),
