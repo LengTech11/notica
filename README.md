@@ -12,6 +12,7 @@ A modern, completely free and ad-free Flutter application for calendar managemen
 - 📋 **View all reminders** in an organized list with filtering options
 - ✔️ **Mark reminders as completed** with completion tracking
 - 🔔 **Local notifications** that trigger at scheduled times
+- 📲 **Push notifications** via Firebase Cloud Messaging (see [FIREBASE_SETUP.md](FIREBASE_SETUP.md))
 - ✏️ **Edit existing reminders** with full details modification
 - 🗑️ **Delete reminders** with confirmation dialog
 - 💾 **Persistent storage** using SharedPreferences
@@ -82,6 +83,7 @@ lib/
 │   └── add_habit_view.dart     # Add/edit habit screen
 ├── services/
 │   ├── notification_service.dart       # Local notification handling
+│   ├── firebase_messaging_service.dart # Firebase Cloud Messaging (push notifications)
 │   ├── reminder_storage_service.dart   # Reminder persistence
 │   ├── event_storage_service.dart      # Event persistence
 │   ├── planner_storage_service.dart    # Planner task persistence
@@ -121,6 +123,8 @@ This project uses the following Flutter packages:
 
 - **`provider`** (^6.1.2) - State management and dependency injection
 - **`flutter_local_notifications`** (^19.4.2) - Local notifications for Android and iOS
+- **`firebase_core`** (^3.8.1) - Firebase core functionality
+- **`firebase_messaging`** (^15.1.5) - Firebase Cloud Messaging for push notifications
 - **`permission_handler`** (^12.0.1) - Runtime permission handling
 - **`intl`** (^0.20.2) - Internationalization and date/time formatting
 - **`timezone`** (^0.10.1) - Timezone support for scheduled notifications
@@ -149,7 +153,12 @@ This project uses the following Flutter packages:
    flutter pub get
    ```
 
-3. **Run the app**:
+3. **[Optional] Configure Firebase for Push Notifications**:
+   - See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for detailed instructions
+   - Push notifications work without this on local notifications
+   - Firebase enables remote push notifications and topic-based messaging
+
+4. **Run the app**:
    ```bash
    flutter run
    ```
@@ -167,6 +176,8 @@ This project uses the following Flutter packages:
 - Notification permissions are requested at runtime
 - Background execution modes configured for notifications
 - Supports both light and dark modes
+- **Push notifications**: Work in foreground/background without APNs key (via local notification fallback)
+  - ⚠️ Killed app notifications require APNs key configuration (see [FIREBASE_SETUP.md](FIREBASE_SETUP.md))
 
 ## Usage
 

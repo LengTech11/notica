@@ -56,6 +56,10 @@ dependencies:
   
   # Localization
   easy_localization: ^3.0.7
+  
+  # Firebase Cloud Messaging
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.5
 
 dev_dependencies:
   flutter_test:

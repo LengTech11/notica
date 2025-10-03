@@ -8,6 +8,7 @@ import '../services/notification_service.dart';
 import '../providers/theme_provider.dart';
 import 'add_reminder_view.dart';
 import 'onboarding_view.dart';
+import 'push_notification_test_view.dart';
 
 class ReminderListView extends StatelessWidget {
   const ReminderListView({super.key});
@@ -49,6 +50,13 @@ class ReminderListView extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'push_test',
+                child: ListTile(
+                  leading: const Icon(Icons.notifications_active),
+                  title: const Text('Push Notification Test'),
+                ),
+              ),
               PopupMenuItem(
                 value: 'language',
                 child: ListTile(
@@ -797,6 +805,14 @@ class ReminderListView extends StatelessWidget {
 
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
+      case 'push_test':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PushNotificationTestView(),
+          ),
+        );
+        break;
       case 'language':
         _showLanguageDialog(context);
         break;

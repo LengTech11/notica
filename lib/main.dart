@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'services/notification_service.dart';
 import 'services/onboarding_service.dart';
+import 'services/firebase_messaging_service.dart';
 import 'viewmodels/reminder_viewmodel.dart';
 import 'viewmodels/calendar_viewmodel.dart';
 import 'viewmodels/planner_viewmodel.dart';
@@ -10,7 +12,6 @@ import 'providers/theme_provider.dart';
 import 'views/reminder_list_view.dart';
 import 'views/calendar_view.dart';
 import 'views/planner_view.dart';
-import 'views/onboarding_view.dart';
 
 void main() async {
   // Needed if you intend to initialize in the main function
@@ -19,9 +20,27 @@ void main() async {
   // Initialize EasyLocalization
   await EasyLocalization.ensureInitialized();
 
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp();
+    debugPrint('🔥 Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('🔥 Error initializing Firebase: $e');
+    // Continue without Firebase if initialization fails
+  }
+
   // Initialize the notification service early
   final notificationService = NotificationService();
   await notificationService.initialize();
+
+  // Initialize Firebase Messaging (after notification service)
+  try {
+    final firebaseMessagingService = FirebaseMessagingService();
+    await firebaseMessagingService.initialize();
+  } catch (e) {
+    debugPrint('🔥 Error initializing Firebase Messaging: $e');
+    // Continue without Firebase Messaging if initialization fails
+  }
 
   // Initialize the onboarding service
   final onboardingService = OnboardingService();
@@ -132,7 +151,7 @@ class NoticaHome extends StatefulWidget {
 
 class _NoticaHomeState extends State<NoticaHome> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _pages = [
     const ReminderListView(),
     const CalendarView(),
