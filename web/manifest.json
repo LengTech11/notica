@@ -1,11 +1,11 @@
 {
-    "name": "flutter_good",
-    "short_name": "flutter_good",
+    "name": "Notica",
+    "short_name": "Notica",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Notica - A modern reminder and notification app",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
