@@ -195,9 +195,7 @@ class _PlannerViewState extends State<PlannerView> {
             ),
           ),
           TextButton(
-            onPressed: () {
-              // Show overdue tasks in a dialog or navigate to a filter view
-            },
+            onPressed: () => _showOverdueTasksDialog(context, viewModel),
             child: const Text('View'),
           ),
         ],
@@ -367,8 +365,16 @@ class _PlannerViewState extends State<PlannerView> {
             ),
           ],
         ),
+        onTap: () => _showTaskDetailsDialog(context, task, viewModel),
         trailing: PopupMenuButton(
           itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'edit',
+              child: const ListTile(
+                leading: Icon(Icons.edit),
+                title: Text('Edit'),
+              ),
+            ),
             if (!task.isCompleted)
               PopupMenuItem(
                 value: 'inProgress',
@@ -386,7 +392,9 @@ class _PlannerViewState extends State<PlannerView> {
             ),
           ],
           onSelected: (value) async {
-            if (value == 'inProgress') {
+            if (value == 'edit') {
+              _showEditTaskDialog(context, task);
+            } else if (value == 'inProgress') {
               await viewModel.updateTaskStatus(task.id, TaskStatus.inProgress);
             } else if (value == 'delete') {
               await viewModel.deleteTask(task.id);
@@ -454,11 +462,23 @@ class _PlannerViewState extends State<PlannerView> {
                         ? selectedTime!.format(context)
                         : 'Not set',
                   ),
-                  trailing: const Icon(Icons.access_time),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (selectedTime != null)
+                        IconButton(
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () {
+                            setState(() => selectedTime = null);
+                          },
+                        ),
+                      const Icon(Icons.access_time),
+                    ],
+                  ),
                   onTap: () async {
                     final picked = await showTimePicker(
                       context: context,
-                      initialTime: TimeOfDay.now(),
+                      initialTime: selectedTime ?? TimeOfDay.now(),
                     );
                     if (picked != null) {
                       setState(() => selectedTime = picked);
@@ -537,5 +557,362 @@ class _PlannerViewState extends State<PlannerView> {
       case TaskPriority.low:
         return Colors.grey;
     }
+  }
+
+  void _showOverdueTasksDialog(BuildContext context, PlannerViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            Text('Overdue Tasks (${viewModel.overdueTasks.length})'),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: viewModel.overdueTasks.isEmpty
+              ? const Center(child: Text('No overdue tasks'))
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: viewModel.overdueTasks.length,
+                  itemBuilder: (context, index) {
+                    final task = viewModel.overdueTasks[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: task.isCompleted,
+                          onChanged: (value) {
+                            viewModel.toggleTaskCompletion(task.id);
+                          },
+                        ),
+                        title: Text(
+                          task.title,
+                          style: TextStyle(
+                            decoration: task.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: Text(
+                          DateFormat('MMM d, yyyy').format(task.date),
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            await viewModel.deleteTask(task.id);
+                            if (viewModel.overdueTasks.isEmpty && context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditTaskDialog(BuildContext context, PlannerTask task) {
+    final viewModel = Provider.of<PlannerViewModel>(context, listen: false);
+    final titleController = TextEditingController(text: task.title);
+    final descriptionController = TextEditingController(text: task.description);
+    DateTime selectedDate = task.date;
+    TimeOfDay? selectedTime = task.scheduledTime;
+    TaskPriority selectedPriority = task.priority;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Task'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Task Title',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  title: const Text('Date'),
+                  subtitle: Text(DateFormat('MMM d, yyyy').format(selectedDate)),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() => selectedDate = picked);
+                    }
+                  },
+                ),
+                ListTile(
+                  title: const Text('Time (optional)'),
+                  subtitle: Text(
+                    selectedTime != null
+                        ? selectedTime!.format(context)
+                        : 'Not set',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (selectedTime != null)
+                        IconButton(
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () {
+                            setState(() => selectedTime = null);
+                          },
+                        ),
+                      const Icon(Icons.access_time),
+                    ],
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: selectedTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() => selectedTime = picked);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<TaskPriority>(
+                  value: selectedPriority,
+                  decoration: const InputDecoration(
+                    labelText: 'Priority',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: TaskPriority.values.map((priority) {
+                    return DropdownMenuItem(
+                      value: priority,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            size: 12,
+                            color: _getPriorityColor(priority),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(priority.name.toUpperCase()),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => selectedPriority = value);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty) return;
+
+                final updatedTask = task.copyWith(
+                  title: titleController.text.trim(),
+                  description: descriptionController.text.trim(),
+                  date: selectedDate,
+                  scheduledTime: selectedTime,
+                  priority: selectedPriority,
+                );
+
+                await viewModel.updateTask(updatedTask);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showTaskDetailsDialog(BuildContext context, PlannerTask task, PlannerViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(task.statusIcon, color: task.statusColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                task.title,
+                style: TextStyle(
+                  decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (task.description.isNotEmpty) ...[
+                const Text(
+                  'Description',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(task.description),
+                const SizedBox(height: 16),
+              ],
+              _buildDetailRow(
+                Icons.calendar_today,
+                'Date',
+                DateFormat('EEEE, MMM d, yyyy').format(task.date),
+              ),
+              if (task.scheduledTime != null)
+                _buildDetailRow(
+                  Icons.access_time,
+                  'Time',
+                  task.scheduledTime!.format(context),
+                ),
+              _buildDetailRow(
+                task.priorityIcon,
+                'Priority',
+                task.priority.name.toUpperCase(),
+                color: task.priorityColor,
+              ),
+              _buildDetailRow(
+                task.statusIcon,
+                'Status',
+                task.status.name.replaceAll('_', ' ').toUpperCase(),
+                color: task.statusColor,
+              ),
+              if (task.estimatedDuration != null)
+                _buildDetailRow(
+                  Icons.timer,
+                  'Estimated Duration',
+                  '${task.estimatedDuration} minutes',
+                ),
+              if (task.category != null)
+                _buildDetailRow(
+                  Icons.category,
+                  'Category',
+                  task.category!,
+                ),
+              if (task.tags.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text(
+                  'Tags',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: task.tags.map((tag) => Chip(label: Text(tag))).toList(),
+                ),
+              ],
+              const SizedBox(height: 16),
+              _buildDetailRow(
+                Icons.history,
+                'Created',
+                DateFormat('MMM d, yyyy - h:mm a').format(task.createdAt),
+              ),
+              if (task.completedAt != null)
+                _buildDetailRow(
+                  Icons.check_circle,
+                  'Completed',
+                  DateFormat('MMM d, yyyy - h:mm a').format(task.completedAt!),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              _showEditTaskDialog(context, task);
+            },
+            icon: const Icon(Icons.edit),
+            label: const Text('Edit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: color ?? Colors.grey),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
