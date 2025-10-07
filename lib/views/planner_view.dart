@@ -13,6 +13,9 @@ class PlannerView extends StatefulWidget {
 
 class _PlannerViewState extends State<PlannerView> {
   DateTime _selectedDate = DateTime.now();
+  TaskPriority? _filterPriority;
+  TaskStatus? _filterStatus;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -28,6 +31,18 @@ class _PlannerViewState extends State<PlannerView> {
       appBar: AppBar(
         title: const Text('Daily Planner'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => _showSearchDialog(context),
+          ),
+          IconButton(
+            icon: Icon(
+              _filterPriority != null || _filterStatus != null
+                  ? Icons.filter_alt
+                  : Icons.filter_alt_outlined,
+            ),
+            onPressed: () => _showFilterDialog(context),
+          ),
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
@@ -47,6 +62,8 @@ class _PlannerViewState extends State<PlannerView> {
           return Column(
             children: [
               _buildDateSelector(),
+              if (_filterPriority != null || _filterStatus != null || _searchQuery.isNotEmpty)
+                _buildActiveFiltersCard(),
               _buildProgressCard(viewModel),
               if (viewModel.overdueTasks.isNotEmpty)
                 _buildOverdueSection(viewModel),
@@ -115,6 +132,86 @@ class _PlannerViewState extends State<PlannerView> {
                 _selectedDate = _selectedDate.add(const Duration(days: 1));
               });
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActiveFiltersCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.filter_alt,
+                size: 20,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Active Filters',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _filterPriority = null;
+                    _filterStatus = null;
+                    _searchQuery = '';
+                  });
+                },
+                child: const Text('Clear All'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (_searchQuery.isNotEmpty)
+                Chip(
+                  label: Text('Search: $_searchQuery'),
+                  onDeleted: () => setState(() => _searchQuery = ''),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                ),
+              if (_filterPriority != null)
+                Chip(
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 12,
+                        color: _getPriorityColor(_filterPriority!),
+                      ),
+                      const SizedBox(width: 4),
+                      Text('Priority: ${_filterPriority!.name.toUpperCase()}'),
+                    ],
+                  ),
+                  onDeleted: () => setState(() => _filterPriority = null),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                ),
+              if (_filterStatus != null)
+                Chip(
+                  label: Text('Status: ${_filterStatus!.name.replaceAll('_', ' ').toUpperCase()}'),
+                  onDeleted: () => setState(() => _filterStatus = null),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                ),
+            ],
           ),
         ],
       ),
@@ -204,7 +301,20 @@ class _PlannerViewState extends State<PlannerView> {
   }
 
   Widget _buildTasksList(PlannerViewModel viewModel) {
-    final tasksForDate = viewModel.getTasksForDate(_selectedDate);
+    var tasksForDate = viewModel.getTasksForDate(_selectedDate);
+
+    // Apply filters
+    if (_filterPriority != null) {
+      tasksForDate = tasksForDate.where((t) => t.priority == _filterPriority).toList();
+    }
+    if (_filterStatus != null) {
+      tasksForDate = tasksForDate.where((t) => t.status == _filterStatus).toList();
+    }
+    if (_searchQuery.isNotEmpty) {
+      tasksForDate = tasksForDate.where((t) =>
+          t.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          t.description.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    }
 
     if (tasksForDate.isEmpty) {
       return Center(
@@ -218,14 +328,18 @@ class _PlannerViewState extends State<PlannerView> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No tasks planned for this day',
+              _filterPriority != null || _filterStatus != null || _searchQuery.isNotEmpty
+                  ? 'No tasks match your filters'
+                  : 'No tasks planned for this day',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Tap the + button to add a task',
+              _filterPriority != null || _filterStatus != null || _searchQuery.isNotEmpty
+                  ? 'Try adjusting your filters'
+                  : 'Tap the + button to add a task',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -912,6 +1026,162 @@ class _PlannerViewState extends State<PlannerView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSearchDialog(BuildContext context) {
+    final searchController = TextEditingController(text: _searchQuery);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Search Tasks'),
+        content: TextField(
+          controller: searchController,
+          decoration: const InputDecoration(
+            labelText: 'Search by title or description',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.search),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          if (_searchQuery.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                setState(() => _searchQuery = '');
+                Navigator.pop(context);
+              },
+              child: const Text('Clear'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() => _searchQuery = searchController.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Search'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    TaskPriority? tempPriority = _filterPriority;
+    TaskStatus? tempStatus = _filterStatus;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Filter Tasks'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Priority',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    FilterChip(
+                      label: const Text('All'),
+                      selected: tempPriority == null,
+                      onSelected: (selected) {
+                        setDialogState(() => tempPriority = null);
+                      },
+                    ),
+                    ...TaskPriority.values.map((priority) {
+                      return FilterChip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.circle,
+                              size: 12,
+                              color: _getPriorityColor(priority),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(priority.name.toUpperCase()),
+                          ],
+                        ),
+                        selected: tempPriority == priority,
+                        onSelected: (selected) {
+                          setDialogState(() =>
+                              tempPriority = selected ? priority : null);
+                        },
+                      );
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Status',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    FilterChip(
+                      label: const Text('All'),
+                      selected: tempStatus == null,
+                      onSelected: (selected) {
+                        setDialogState(() => tempStatus = null);
+                      },
+                    ),
+                    ...TaskStatus.values.map((status) {
+                      return FilterChip(
+                        label: Text(status.name.replaceAll('_', ' ').toUpperCase()),
+                        selected: tempStatus == status,
+                        onSelected: (selected) {
+                          setDialogState(() =>
+                              tempStatus = selected ? status : null);
+                        },
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            if (_filterPriority != null || _filterStatus != null)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _filterPriority = null;
+                    _filterStatus = null;
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Clear All'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _filterPriority = tempPriority;
+                  _filterStatus = tempStatus;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
       ),
     );
   }
