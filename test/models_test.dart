@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notica/models/event.dart';
 import 'package:notica/models/planner_task.dart';
@@ -152,6 +153,72 @@ void main() {
       );
 
       expect(completedTask.isOverdue, false);
+    });
+
+    test('PlannerTask copyWith creates a new instance with updated fields', () {
+      final originalTask = PlannerTask(
+        id: '1',
+        title: 'Original Task',
+        description: 'Original Description',
+        date: DateTime(2024, 1, 1),
+        priority: TaskPriority.normal,
+        status: TaskStatus.notStarted,
+        createdAt: DateTime.now(),
+      );
+
+      final updatedTask = originalTask.copyWith(
+        title: 'Updated Task',
+        priority: TaskPriority.high,
+        status: TaskStatus.inProgress,
+      );
+
+      expect(updatedTask.title, 'Updated Task');
+      expect(updatedTask.priority, TaskPriority.high);
+      expect(updatedTask.status, TaskStatus.inProgress);
+      expect(updatedTask.description, 'Original Description'); // Unchanged
+      expect(updatedTask.id, originalTask.id); // Same ID
+    });
+
+    test('PlannerTask priority color matches expected colors', () {
+      final urgentTask = PlannerTask(
+        id: '1',
+        title: 'Urgent Task',
+        date: DateTime.now(),
+        priority: TaskPriority.urgent,
+        createdAt: DateTime.now(),
+      );
+
+      final normalTask = PlannerTask(
+        id: '2',
+        title: 'Normal Task',
+        date: DateTime.now(),
+        priority: TaskPriority.normal,
+        createdAt: DateTime.now(),
+      );
+
+      expect(urgentTask.priorityColor, Colors.red);
+      expect(normalTask.priorityColor, Colors.blue);
+    });
+
+    test('PlannerTask status color matches expected colors', () {
+      final completedTask = PlannerTask(
+        id: '1',
+        title: 'Completed Task',
+        date: DateTime.now(),
+        status: TaskStatus.completed,
+        createdAt: DateTime.now(),
+      );
+
+      final inProgressTask = PlannerTask(
+        id: '2',
+        title: 'In Progress Task',
+        date: DateTime.now(),
+        status: TaskStatus.inProgress,
+        createdAt: DateTime.now(),
+      );
+
+      expect(completedTask.statusColor, Colors.green);
+      expect(inProgressTask.statusColor, Colors.blue);
     });
   });
 }
